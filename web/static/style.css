@@ -1,0 +1,458 @@
+/* scaport custom animations & styling with full Light & Dark mode support */
+@keyframes pulse-subtle {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.85; transform: scale(1.02); }
+}
+
+.badge-pulse {
+    animation: pulse-subtle 2s infinite ease-in-out;
+}
+
+/* Glassmorphism for Dark Mode */
+html.dark .glassmorphism {
+    background: rgba(15, 23, 42, 0.82);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Glassmorphism for Light Mode */
+html:not(.dark) .glassmorphism {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+/* Custom scrollbar - Dark Mode */
+html.dark ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+html.dark ::-webkit-scrollbar-track {
+    background: #0f172a;
+}
+html.dark ::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 9999px;
+}
+html.dark ::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
+
+/* Custom scrollbar - Light Mode */
+html:not(.dark) ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+html:not(.dark) ::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+html:not(.dark) ::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 9999px;
+}
+html:not(.dark) ::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* ========================================================= */
+/* LIGHT MODE COMPREHENSIVE OVERRIDES (Crisp, High-Contrast) */
+/* ========================================================= */
+
+html:not(.dark) body {
+    background-color: #f8fafc !important;
+    color: #0f172a !important;
+}
+
+/* Header & Nav */
+html:not(.dark) header {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* Base Dark Utility Replacements */
+html:not(.dark) .bg-dark-900 {
+    background-color: #f1f5f9 !important;
+}
+
+html:not(.dark) .bg-dark-800 {
+    background-color: #ffffff !important;
+}
+
+html:not(.dark) .bg-dark-800\/90,
+html:not(.dark) .bg-dark-800\/80,
+html:not(.dark) .bg-dark-800\/50 {
+    background-color: #ffffff !important;
+}
+
+html:not(.dark) .bg-dark-900\/80,
+html:not(.dark) .bg-dark-900\/90,
+html:not(.dark) .bg-dark-900\/60 {
+    background-color: #f8fafc !important;
+}
+
+/* Borders */
+html:not(.dark) .border-slate-800,
+html:not(.dark) .border-slate-800\/80,
+html:not(.dark) .border-slate-800\/60 {
+    border-color: #e2e8f0 !important;
+}
+
+html:not(.dark) .border-slate-700,
+html:not(.dark) .border-slate-700\/80,
+html:not(.dark) .border-slate-700\/70,
+html:not(.dark) .border-slate-700\/60 {
+    border-color: #cbd5e1 !important;
+}
+
+/* Text Colors */
+html:not(.dark) .text-slate-100,
+html:not(.dark) .text-white {
+    color: #0f172a !important;
+}
+
+html:not(.dark) .text-slate-200 {
+    color: #1e293b !important;
+}
+
+html:not(.dark) .text-slate-300 {
+    color: #334155 !important;
+}
+
+html:not(.dark) .text-slate-400 {
+    color: #64748b !important;
+}
+
+html:not(.dark) .text-slate-500 {
+    color: #64748b !important;
+}
+
+/* Light Mode High-Contrast Accent Colors */
+html:not(.dark) .text-emerald-400,
+html:not(.dark) .text-emerald-300 {
+    color: #059669 !important;
+}
+
+html:not(.dark) .text-cyan-400,
+html:not(.dark) .text-cyan-300 {
+    color: #0891b2 !important;
+}
+
+html:not(.dark) .text-amber-400,
+html:not(.dark) .text-amber-300 {
+    color: #d97706 !important;
+}
+
+html:not(.dark) .text-rose-400,
+html:not(.dark) .text-rose-300 {
+    color: #e11d48 !important;
+}
+
+html:not(.dark) .text-purple-400,
+html:not(.dark) .text-purple-300 {
+    color: #7c3aed !important;
+}
+
+/* Light Mode Badges Background & Border High-Contrast */
+html:not(.dark) .bg-emerald-500\/10,
+html:not(.dark) .bg-emerald-500\/15,
+html:not(.dark) .bg-emerald-500\/20 {
+    background-color: rgba(16, 185, 129, 0.12) !important;
+    border-color: rgba(16, 185, 129, 0.3) !important;
+}
+
+html:not(.dark) .bg-cyan-500\/10,
+html:not(.dark) .bg-cyan-500\/15,
+html:not(.dark) .bg-cyan-500\/20 {
+    background-color: rgba(6, 182, 212, 0.12) !important;
+    border-color: rgba(6, 182, 212, 0.3) !important;
+}
+
+html:not(.dark) .bg-amber-500\/10,
+html:not(.dark) .bg-amber-500\/15,
+html:not(.dark) .bg-amber-500\/20 {
+    background-color: rgba(245, 158, 11, 0.12) !important;
+    border-color: rgba(245, 158, 11, 0.3) !important;
+}
+
+html:not(.dark) .bg-rose-500\/10,
+html:not(.dark) .bg-rose-500\/15,
+html:not(.dark) .bg-rose-500\/20 {
+    background-color: rgba(244, 63, 94, 0.12) !important;
+    border-color: rgba(244, 63, 94, 0.3) !important;
+}
+
+html:not(.dark) .bg-purple-500\/10,
+html:not(.dark) .bg-purple-500\/15,
+html:not(.dark) .bg-purple-500\/20 {
+    background-color: rgba(168, 85, 247, 0.12) !important;
+    border-color: rgba(168, 85, 247, 0.3) !important;
+}
+
+/* Header Buttons in Light Mode */
+html:not(.dark) header button.bg-slate-800,
+html:not(.dark) button.bg-slate-800 {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #334155 !important;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+html:not(.dark) header button.bg-slate-800:hover,
+html:not(.dark) button.bg-slate-800:hover {
+    background-color: #f1f5f9 !important;
+    color: #0f172a !important;
+    border-color: #94a3b8 !important;
+}
+
+/* Watch Mode Active vs Inactive in Light Mode */
+html:not(.dark) #web-watch-btn.bg-slate-800 {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #334155 !important;
+}
+
+/* Advisor Banner in Light Mode */
+html:not(.dark) #smart-advisor-banner {
+    background: linear-gradient(to right, rgba(16, 185, 129, 0.08), #ffffff, #ffffff) !important;
+    border-color: rgba(16, 185, 129, 0.3) !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+}
+
+html:not(.dark) #advisor-controls button {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #475569 !important;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+html:not(.dark) #advisor-controls button:hover {
+    background-color: #f1f5f9 !important;
+    color: #0f172a !important;
+    border-color: #10b981 !important;
+}
+
+html:not(.dark) #advisor-counter {
+    background-color: rgba(16, 185, 129, 0.1) !important;
+    border-color: rgba(16, 185, 129, 0.3) !important;
+    color: #059669 !important;
+}
+
+html:not(.dark) #advisor-tag {
+    background-color: rgba(16, 185, 129, 0.15) !important;
+    color: #047857 !important;
+}
+
+/* Advisor Banner Alerts in Light Mode */
+html:not(.dark) #smart-advisor-banner.bg-rose-950\/40 {
+    background: #fff1f2 !important;
+    border-color: #fecdd3 !important;
+}
+html:not(.dark) #smart-advisor-banner.bg-amber-950\/40 {
+    background: #fffbeb !important;
+    border-color: #fde68a !important;
+}
+html:not(.dark) #smart-advisor-banner.bg-cyan-950\/40 {
+    background: #ecfeff !important;
+    border-color: #a5f3fc !important;
+}
+
+/* Metric Cards & Chips in Light Mode */
+html:not(.dark) .bg-dark-800\/90 {
+    background-color: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+}
+
+html:not(.dark) #tech-chips-container button {
+    background-color: #f8fafc !important;
+    border-color: #cbd5e1 !important;
+    color: #334155 !important;
+}
+
+html:not(.dark) #tech-chips-container button:hover {
+    background-color: #f1f5f9 !important;
+    border-color: #f59e0b !important;
+    color: #b45309 !important;
+}
+
+/* Search bar, Filters & View toggles in Light Mode */
+html:not(.dark) input,
+html:not(.dark) select {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    border-color: #cbd5e1 !important;
+}
+
+html:not(.dark) input::placeholder {
+    color: #94a3b8 !important;
+}
+
+html:not(.dark) input:focus,
+html:not(.dark) select:focus {
+    border-color: #10b981 !important;
+    box-shadow: 0 0 0 1px #10b981;
+}
+
+html:not(.dark) #dev-only-btn {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #334155 !important;
+}
+
+html:not(.dark) #dev-only-btn.bg-emerald-500\/20 {
+    background-color: rgba(16, 185, 129, 0.15) !important;
+    border-color: #10b981 !important;
+    color: #047857 !important;
+}
+
+/* Table / Grid Mode View Selector */
+html:not(.dark) .flex.bg-dark-900.border {
+    background-color: #f1f5f9 !important;
+    border-color: #cbd5e1 !important;
+}
+
+html:not(.dark) #view-table-btn.bg-slate-700,
+html:not(.dark) #view-grid-btn.bg-slate-700 {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+}
+
+html:not(.dark) #view-table-btn:not(.bg-slate-700),
+html:not(.dark) #view-grid-btn:not(.bg-slate-700) {
+    color: #64748b !important;
+}
+
+html:not(.dark) #view-table-btn:not(.bg-slate-700):hover,
+html:not(.dark) #view-grid-btn:not(.bg-slate-700):hover {
+    color: #0f172a !important;
+}
+
+/* Table in Light Mode */
+html:not(.dark) thead {
+    background-color: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+    color: #475569 !important;
+}
+
+html:not(.dark) thead th {
+    color: #475569 !important;
+    font-weight: 700 !important;
+}
+
+html:not(.dark) tbody tr {
+    color: #1e293b !important;
+    border-color: #f1f5f9 !important;
+}
+
+html:not(.dark) tbody tr:hover {
+    background-color: #f8fafc !important;
+}
+
+html:not(.dark) tbody tr.bg-emerald-950\/15 {
+    background-color: rgba(16, 185, 129, 0.05) !important;
+}
+
+html:not(.dark) tbody tr.bg-emerald-950\/15:hover {
+    background-color: rgba(16, 185, 129, 0.1) !important;
+}
+
+/* Idle Health Badge in Light Mode */
+html:not(.dark) span.bg-slate-800 {
+    background-color: #f1f5f9 !important;
+    border-color: #cbd5e1 !important;
+    color: #475569 !important;
+}
+
+/* Shield Badge in Light Mode */
+html:not(.dark) span.bg-slate-800\/90 {
+    background-color: #f1f5f9 !important;
+    border-color: #cbd5e1 !important;
+    color: #475569 !important;
+}
+
+/* Export Dropdown in Light Mode */
+html:not(.dark) #export-dropdown {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+}
+
+html:not(.dark) #export-dropdown button:hover {
+    background-color: #f1f5f9 !important;
+}
+
+html:not(.dark) #export-dropdown p.font-medium {
+    color: #0f172a !important;
+}
+
+/* Modals & History Drawer in Light Mode */
+html:not(.dark) #help-modal .bg-dark-800,
+html:not(.dark) #telemetry-modal .bg-dark-800,
+html:not(.dark) #history-drawer {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+}
+
+html:not(.dark) #help-modal .bg-dark-900,
+html:not(.dark) #telemetry-modal .bg-dark-900 {
+    background-color: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+}
+
+html:not(.dark) #help-modal .bg-dark-900\/80,
+html:not(.dark) #telemetry-modal .bg-dark-900\/90 {
+    background-color: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+html:not(.dark) #telemetry-top-procs-list .bg-dark-800,
+html:not(.dark) #telemetry-http-list .bg-dark-800,
+html:not(.dark) #telemetry-modal .grid-cols-2 .bg-dark-800 {
+    background-color: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+}
+
+html:not(.dark) #history-drawer .bg-dark-800 {
+    background-color: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+}
+
+/* Toast Notifications in Light Mode */
+html:not(.dark) #toast.bg-dark-800\/95,
+html:not(.dark) #toast {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    border-color: #cbd5e1 !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+}
+
+html:not(.dark) #toast.bg-emerald-950\/95 {
+    background-color: #ecfdf5 !important;
+    color: #065f46 !important;
+    border-color: #6ee7b7 !important;
+}
+
+html:not(.dark) #toast.bg-rose-950\/95 {
+    background-color: #fff1f2 !important;
+    color: #9f1239 !important;
+    border-color: #fca5a5 !important;
+}
+
+html:not(.dark) #toast button {
+    color: #64748b !important;
+}
+
+html:not(.dark) #toast button:hover {
+    color: #0f172a !important;
+}
+
+/* Footer in Light Mode */
+html:not(.dark) footer {
+    background-color: #ffffff !important;
+    border-color: #e2e8f0 !important;
+}

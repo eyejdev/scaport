@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ scaport - Smart Port Orchestrator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                        },
+                        dark: {
+                            900: '#090d16',
+                            800: '#0f172a',
+                            700: '#1e293b',
+                            600: '#334155',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="bg-dark-900 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-emerald-500 selection:text-black">
+
+    <!-- Top Navigation Header -->
+    <header class="border-b border-slate-800/80 bg-dark-800/50 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <span class="text-2xl">⚡</span>
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="font-black text-lg tracking-wider text-white">SCAPORT</span>
+                        <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-mono font-semibold">GOENMA</span>
+                    </div>
+                    <p class="text-[11px] text-slate-400" data-i18n="appSubtitle">Smart Port & Process Orchestrator</p>
+                </div>
+            </div>
+
+            <!-- Global Stats & Controls -->
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <div id="connection-status" class="hidden sm:flex items-center space-x-2 text-xs font-mono px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span data-i18n="sseConnected">SSE CONECTADO</span>
+                </div>
+
+                <!-- Language Switcher Button (ES ⇄ EN) -->
+                <button id="lang-btn" onclick="toggleLanguage()" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-lg border border-slate-700 transition flex items-center space-x-1" title="Cambiar idioma (Español / English)" data-i18n-title="langBtnTitle">
+                    <span>🌐</span>
+                    <span id="lang-btn-text" class="font-bold">ES</span>
+                </button>
+
+                <!-- Light / Dark Theme Switcher Button -->
+                <button id="theme-btn" onclick="toggleTheme()" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-lg border border-slate-700 transition flex items-center space-x-1" title="Alternar tema Claro / Oscuro" data-i18n-title="themeBtnTitle">
+                    <span id="theme-icon">🌙</span>
+                    <span id="theme-text" class="hidden sm:inline">Dark</span>
+                </button>
+
+                <!-- Live Watch Daemon Toggle -->
+                <button id="web-watch-btn" onclick="toggleWebWatchMode()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-medium rounded-lg border border-slate-700 transition flex items-center space-x-1.5" title="Activa la vigilancia continua de puertos con auto-sondeo y alertas de audio/visuales" data-i18n-title="watchTitle">
+                    <span id="watch-icon">👁️</span>
+                    <span id="watch-text" data-i18n="watchOff">Watch: OFF</span>
+                </button>
+
+                <!-- Performance & Telemetry Modal Toggle -->
+                <button onclick="toggleTelemetryModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-medium rounded-lg border border-slate-700 hover:border-cyan-500/50 text-cyan-400 transition flex items-center space-x-1.5" title="Abrir monitor de telemetría y rendimiento en tiempo real" data-i18n-title="telemetryTitle">
+                    <span data-i18n="telemetryBtn">📊 Telemetría</span>
+                </button>
+
+                <button onclick="triggerHealthCheck()" class="hidden md:flex px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-medium rounded-lg border border-slate-700 transition items-center space-x-1.5" title="Lanzar sondeo HTTP inmediato en todos los puertos" data-i18n-title="healthCheckTitle">
+                    <span data-i18n="healthCheckBtn">🩺 Health Check</span>
+                </button>
+
+                <!-- Action History Button -->
+                <button onclick="toggleHistoryDrawer()" class="hidden lg:flex px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-medium rounded-lg border border-slate-700 transition items-center space-x-1.5 relative" title="Abrir registro histórico de acciones" data-i18n-title="historyTitle">
+                    <span data-i18n="historyBtn">📜 Historial</span>
+                    <span id="history-badge" class="hidden absolute -top-1 -right-1 bg-emerald-500 text-[9px] text-black font-bold px-1.5 py-0.2 rounded-full">0</span>
+                </button>
+
+                <!-- Help & Guide Modal Button -->
+                <button onclick="toggleHelpModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-medium rounded-lg border border-slate-700 transition flex items-center space-x-1.5 text-amber-300" title="Abrir guía de uso y preguntas frecuentes" data-i18n-title="guideTitle">
+                    <span data-i18n="guideBtn">💡 Guía & FAQs</span>
+                </button>
+
+                <!-- Export Dropdown -->
+                <div class="relative inline-block text-left">
+                    <button onclick="toggleExportMenu()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg shadow-sm transition flex items-center space-x-1.5">
+                        <span data-i18n="exportBtn">📥 Exportar</span>
+                    </button>
+                    <div id="export-dropdown" class="hidden absolute right-0 mt-2 w-56 rounded-lg bg-dark-800 border border-slate-700 shadow-2xl py-1.5 z-50 divide-y divide-slate-700/60">
+                        <div class="py-1">
+                            <button onclick="exportData('json')" class="w-full text-left px-4 py-2 text-xs text-slate-300 hover:bg-slate-700/60 hover:text-white flex items-center space-x-2.5">
+                                <span>📄</span>
+                                <div>
+                                    <p class="font-medium" data-i18n="exportJsonTitle">Datos JSON (.json)</p>
+                                    <p class="text-[10px] text-slate-500" data-i18n="exportJsonSub">Para scripts, jq y CI/CD</p>
+                                </div>
+                            </button>
+                            <button onclick="exportData('md')" class="w-full text-left px-4 py-2 text-xs text-slate-300 hover:bg-slate-700/60 hover:text-white flex items-center space-x-2.5">
+                                <span>📝</span>
+                                <div>
+                                    <p class="font-medium" data-i18n="exportMdTitle">Tabla Markdown (.md)</p>
+                                    <p class="text-[10px] text-slate-500" data-i18n="exportMdSub">Para GitHub, PRs y Docs</p>
+                                </div>
+                            </button>
+                        </div>
+                        <div class="py-1">
+                            <button onclick="exportData('csv')" class="w-full text-left px-4 py-2 text-xs text-slate-300 hover:bg-slate-700/60 hover:text-white flex items-center space-x-2.5">
+                                <span>📊</span>
+                                <div>
+                                    <p class="font-medium" data-i18n="exportCsvTitle">Hoja de Cálculo CSV (.csv)</p>
+                                    <p class="text-[10px] text-slate-500" data-i18n="exportCsvSub">Para Excel y Google Sheets</p>
+                                </div>
+                            </button>
+                            <button onclick="exportData('html')" class="w-full text-left px-4 py-2 text-xs text-slate-300 hover:bg-slate-700/60 hover:text-white flex items-center space-x-2.5">
+                                <span>🌐</span>
+                                <div>
+                                    <p class="font-medium" data-i18n="exportHtmlTitle">HTML Autónomo (.html)</p>
+                                    <p class="text-[10px] text-slate-500" data-i18n="exportHtmlSub">Reporte visual offline listo</p>
+                                </div>
+                            </button>
+                        </div>
+                        <div class="py-1">
+                            <button onclick="exportTelemetryReport('md')" class="w-full text-left px-4 py-2 text-xs text-cyan-300 hover:bg-slate-700/60 hover:text-white flex items-center space-x-2.5">
+                                <span>📈</span>
+                                <div>
+                                    <p class="font-medium" data-i18n="exportTelemMdTitle">Informe Telemetría (.md)</p>
+                                    <p class="text-[10px] text-slate-500" data-i18n="exportTelemMdSub">Informe de telemetría y latencias</p>
+                                </div>
+                            </button>
+                            <button onclick="exportTelemetryReport('json')" class="w-full text-left px-4 py-2 text-xs text-cyan-300 hover:bg-slate-700/60 hover:text-white flex items-center space-x-2.5">
+                                <span>⚡</span>
+                                <div>
+                                    <p class="font-medium" data-i18n="exportTelemJsonTitle">Telemetría JSON (.json)</p>
+                                    <p class="text-[10px] text-slate-500" data-i18n="exportTelemJsonSub">Muestreo crudo de series temporales</p>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- Smart Recommendation, Tips & Diagnostic Banner -->
+        <div id="smart-advisor-banner" onmouseenter="pauseTipsCarousel()" onmouseleave="resumeTipsCarousel()" class="bg-gradient-to-r from-emerald-500/10 via-dark-800 to-dark-800 border border-emerald-500/30 rounded-xl p-4 shadow-lg transition-all duration-300 relative group">
+            <div class="flex flex-col md:flex-row md:items-start justify-between gap-3">
+                <div class="flex items-start space-x-3 flex-1 min-w-0">
+                    <span id="advisor-icon" class="text-2xl mt-0.5 select-none">🧠</span>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center space-x-2 flex-wrap gap-y-1">
+                            <h4 id="advisor-title" class="font-bold text-sm text-emerald-400" data-i18n="advisorTitleDefault">Consejo de Desarrollo & Arquitectura GOENMA</h4>
+                            <span id="advisor-tag" class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-mono" data-i18n="advisorTagDefault">SABIDURÍA DEV</span>
+                            <span id="advisor-counter" class="text-[10px] bg-slate-800/90 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded font-mono font-bold">💡 Consejo #1</span>
+                        </div>
+                        <p id="advisor-message" class="text-xs text-slate-300 mt-1 leading-relaxed" data-i18n="analyzingAdvisor">
+                            Analizando comportamiento de puertos y entorno...
+                        </p>
+                    </div>
+                </div>
+                <div id="advisor-controls" class="flex items-center space-x-1.5 self-end md:self-start shrink-0">
+                    <button onclick="prevAdvisorTip()" class="text-xs text-slate-400 hover:text-white bg-slate-800/90 hover:bg-slate-700 px-2 py-1 rounded-lg border border-slate-700 transition" title="Consejo anterior" data-i18n-title="prevTipTitle">
+                        ◀
+                    </button>
+                    <button onclick="randomAdvisorTip()" class="text-xs text-slate-400 hover:text-amber-300 bg-slate-800/90 hover:bg-slate-700 px-2 py-1 rounded-lg border border-slate-700 transition" title="Consejo aleatorio" data-i18n-title="randomTipTitle">
+                        🎲
+                    </button>
+                    <button onclick="nextAdvisorTip()" class="text-xs text-slate-400 hover:text-emerald-300 bg-slate-800/90 hover:bg-slate-700 px-2.5 py-1 rounded-lg border border-slate-700 hover:border-emerald-500/30 transition flex items-center space-x-1" title="Siguiente consejo (Auto-rotación cada 15s)" data-i18n-title="nextTipTitle">
+                        <span data-i18n="nextTipBtn">Siguiente ▶</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metrics Overview Bar: Upgraded Interactive Telemetry Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            
+            <!-- Card 1: Active Ports & Layer Distribution -->
+            <div class="bg-dark-800/90 border border-slate-800 hover:border-slate-700 rounded-xl p-4 transition shadow-lg flex flex-col justify-between relative overflow-hidden group">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-[11px] text-slate-400 uppercase tracking-wider font-bold" data-i18n="cardSocketsTitle">Sockets Activos</p>
+                        <div class="flex items-baseline space-x-2 mt-1">
+                            <h3 id="stat-total-ports" class="text-2xl font-black text-white">0</h3>
+                            <span class="text-[11px] text-slate-500 font-mono" data-i18n="unitSockets">puertos</span>
+                        </div>
+                    </div>
+                    <div class="p-2.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg text-base">🔌</div>
+                </div>
+
+                <!-- Mini Live Sparkline for Port Count with Scales and Units -->
+                <div class="my-2 bg-dark-900/60 rounded-lg p-1.5 border border-slate-800/60">
+                    <div class="flex items-center justify-between text-[9px] text-slate-400 font-mono mb-0.5">
+                        <span id="sparkline-ports-scale" class="text-emerald-400/90 font-bold">Escala: 0 - 60 sockets</span>
+                        <span class="text-slate-500" data-i18n="timeScale">-60s ─── 0s</span>
+                    </div>
+                    <div class="h-9 w-full flex items-end">
+                        <svg id="sparkline-ports" class="w-full h-full stroke-emerald-400 fill-emerald-500/10 stroke-[1.5]" viewBox="0 0 100 28" preserveAspectRatio="none">
+                            <path d="M0,24 L100,24"></path>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Interactive Split Badges -->
+                <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
+                    <button onclick="quickFilter('devOnly')" title="Filtrar proyectos y puertos dev" data-i18n-title="devOnlyChipTitle" class="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25 border border-emerald-500/30 transition flex items-center space-x-1">
+                        <span>⚡</span> <span id="stat-dev-count" class="font-bold font-mono">0</span> <span data-i18n="devOnlyChip">Dev</span>
+                    </button>
+                    <button onclick="quickFilter('tech', 'Database')" title="Filtrar bases de datos" data-i18n-title="dbChipTitle" class="px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 hover:bg-amber-500/25 border border-amber-500/30 transition flex items-center space-x-1">
+                        <span>🗄️</span> <span id="stat-db-count" class="font-bold font-mono">0</span> <span data-i18n="dbChip">DB</span>
+                    </button>
+                    <button onclick="quickFilter('tech', 'System')" title="Filtrar procesos protegidos del sistema" data-i18n-title="sysChipTitle" class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 hover:bg-slate-700 border border-slate-700 transition flex items-center space-x-1">
+                        <span>🛡️</span> <span id="stat-sys-count" class="font-bold font-mono">0</span> <span data-i18n="sysChip">Sys</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card 2: Health Status & Traffic Pulse -->
+            <div class="bg-dark-800/90 border border-slate-800 hover:border-slate-700 rounded-xl p-4 transition shadow-lg flex flex-col justify-between relative overflow-hidden group">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center space-x-1">
+                            <p class="text-[11px] text-slate-400 uppercase tracking-wider font-bold" data-i18n="cardHealthTitle">Salud & Tráfico</p>
+                            <span id="stat-avg-latency-badge" class="text-[10px] text-emerald-400 bg-emerald-500/10 px-1 rounded font-mono hidden">--ms</span>
+                        </div>
+                        <div class="flex items-baseline space-x-2 mt-1">
+                            <h3 id="stat-healthy" class="text-2xl font-black text-emerald-400">0 Online</h3>
+                        </div>
+                    </div>
+                    <button onclick="triggerHealthCheck()" title="Lanzar sondeo HTTP inmediato" data-i18n-title="probeNowTitle" class="p-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-400 rounded-lg text-base transition">🩺</button>
+                </div>
+
+                <!-- Multi-segment Health Distribution Progress Bar -->
+                <div class="my-2.5 w-full bg-slate-800 rounded-full h-2 overflow-hidden flex" title="Distribución de salud HTTP" data-i18n-title="healthDistTitle">
+                    <div id="health-bar-online" class="bg-emerald-400 h-full transition-all duration-500" style="width: 0%"></div>
+                    <div id="health-bar-degraded" class="bg-amber-400 h-full transition-all duration-500" style="width: 0%"></div>
+                    <div id="health-bar-unhealthy" class="bg-rose-500 h-full transition-all duration-500" style="width: 0%"></div>
+                    <div id="health-bar-idle" class="bg-slate-600 h-full transition-all duration-500" style="width: 100%"></div>
+                </div>
+
+                <!-- Health Sub-metrics -->
+                <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
+                    <span class="text-emerald-400 flex items-center space-x-1" title="Servicios respondiendo HTTP 200 OK" data-i18n-title="healthOnlineTitle">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span>
+                        <span id="stat-online-count" class="font-bold font-mono">0</span> <span data-i18n="healthOnline">Online</span>
+                    </span>
+                    <span class="text-slate-400 flex items-center space-x-1" title="Sockets a la escucha sin servidor HTTP" data-i18n-title="healthIdleTitle">
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-500 inline-block"></span>
+                        <span id="stat-idle-count" class="font-bold font-mono">0</span> <span data-i18n="healthIdle">Idle</span>
+                    </span>
+                    <span id="stat-unhealthy-container" class="text-rose-400 flex items-center space-x-1" title="Servicios sin respuesta o con error" data-i18n-title="healthBlockedTitle">
+                        <span class="w-1.5 h-1.5 rounded-full bg-rose-400 inline-block"></span>
+                        <span id="stat-unhealthy-count" class="font-bold font-mono">0</span> <span data-i18n="healthBlocked">Bloqueado</span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Card 3: Memory Trend & Top Consumer -->
+            <div class="bg-dark-800/90 border border-slate-800 hover:border-slate-700 rounded-xl p-4 transition shadow-lg flex flex-col justify-between relative overflow-hidden group">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-[11px] text-slate-400 uppercase tracking-wider font-bold" data-i18n="cardMemoryTitle">Memoria Total (RSS)</p>
+                        <div class="flex items-baseline space-x-2 mt-1">
+                            <h3 id="stat-memory" class="text-2xl font-black text-cyan-400">0 MB</h3>
+                        </div>
+                    </div>
+                    <div class="p-2.5 bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 rounded-lg text-base">🧠</div>
+                </div>
+
+                <!-- Live Sparkline for Memory Consumption with Scales and Units -->
+                <div class="my-2 bg-dark-900/60 rounded-lg p-1.5 border border-slate-800/60">
+                    <div class="flex items-center justify-between text-[9px] text-slate-400 font-mono mb-0.5">
+                        <span id="sparkline-mem-scale" class="text-cyan-400/90 font-bold">Escala: 0 - 2.0GB</span>
+                        <span class="text-slate-500" data-i18n="timeScale">-60s ─── 0s</span>
+                    </div>
+                    <div class="h-9 w-full flex items-end">
+                        <svg id="sparkline-memory" class="w-full h-full stroke-cyan-400 fill-cyan-500/10 stroke-[1.5]" viewBox="0 0 100 28" preserveAspectRatio="none">
+                            <path d="M0,24 L100,24"></path>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Top Consumer Process & Status Badge -->
+                <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
+                    <div class="truncate max-w-[150px] flex items-center space-x-1" title="Proceso con mayor consumo de memoria física">
+                        <span>🔥</span> <span id="stat-top-consumer" class="font-mono text-slate-200 truncate font-semibold" data-i18n="detectingStack">Analizando...</span>
+                    </div>
+                    <span id="stat-memory-badge" class="px-1.5 py-0.2 text-[10px] rounded bg-cyan-500/15 text-cyan-300 font-mono" data-i18n="memStatusNormal">Normal</span>
+                </div>
+            </div>
+
+            <!-- Card 4: Dev Ecosystem & Stack Distribution -->
+            <div class="bg-dark-800/90 border border-slate-800 hover:border-slate-700 rounded-xl p-4 transition shadow-lg flex flex-col justify-between relative overflow-hidden group">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-[11px] text-slate-400 uppercase tracking-wider font-bold" data-i18n="cardEcosystemTitle">Ecosistema Dev</p>
+                        <div class="flex items-baseline space-x-2 mt-1">
+                            <h3 id="stat-projects" class="text-2xl font-black text-amber-400">0</h3>
+                            <span class="text-[11px] text-slate-500 font-mono" data-i18n="unitProjects">proyectos</span>
+                        </div>
+                    </div>
+                    <div class="p-2.5 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-lg text-base">📦</div>
+                </div>
+
+                <!-- Stack Distribution Bar -->
+                <div class="my-2.5 w-full bg-slate-800 rounded-full h-2 overflow-hidden flex" id="tech-distribution-bar" title="Distribución de tecnologías activas" data-i18n-title="stackDistTitle">
+                    <div class="bg-amber-400 h-full" style="width: 100%"></div>
+                </div>
+
+                <!-- Interactive Tech Chips -->
+                <div id="tech-chips-container" class="pt-2 border-t border-slate-800/80 flex items-center space-x-1.5 overflow-x-auto no-scrollbar text-[10px]">
+                    <span class="text-slate-500" data-i18n="detectingStack">Detectando stack...</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Search, Filter & Quick Action Bar -->
+        <div class="flex flex-col sm:flex-row gap-3 items-center justify-between bg-dark-800/50 p-3 rounded-xl border border-slate-800">
+            <div class="relative w-full sm:w-96">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-sm">🔍</span>
+                <input type="text" id="search-input" onkeyup="filterPorts()" placeholder="Buscar puerto, PID, proyecto, tecnología..." data-i18n-placeholder="searchPlaceholder"
+                    class="w-full pl-9 pr-4 py-2 bg-dark-900 border border-slate-700/80 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition">
+            </div>
+
+            <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
+                <button id="dev-only-btn" onclick="toggleDevOnlyFilter()" title="Mostrar únicamente proyectos de desarrollo (ocultar puertos de sistema)" data-i18n-title="devOnlyBtnTitle" class="px-3 py-1.5 text-xs rounded-lg font-medium border border-slate-700 bg-dark-900 text-slate-300 hover:text-emerald-400 hover:border-emerald-500/50 transition flex items-center space-x-1.5">
+                    <span data-i18n="devOnlyBtn">⚡ Solo Dev</span>
+                </button>
+
+                <select id="type-filter" onchange="filterPorts()" class="bg-dark-900 border border-slate-700 text-slate-300 text-xs rounded-lg px-3 py-2 focus:outline-none focus:border-emerald-500">
+                    <option value="ALL" data-i18n="allTechOption">Todas las Tecnologías</option>
+                    <option value="Node.js">Node.js</option>
+                    <option value="Go">Go</option>
+                    <option value="Python">Python</option>
+                    <option value="Rust">Rust</option>
+                    <option value="Docker">Docker</option>
+                    <option value="Database" data-i18n="dbTechOption">Bases de Datos</option>
+                    <option value="System" data-i18n="sysTechOption">Sistema & Protegidos</option>
+                </select>
+
+                <div class="flex bg-dark-900 border border-slate-700 rounded-lg p-0.5">
+                    <button id="view-table-btn" onclick="setViewMode('table')" class="px-3 py-1 text-xs rounded font-medium bg-slate-700 text-white" data-i18n="viewTable">Tabla</button>
+                    <button id="view-grid-btn" onclick="setViewMode('grid')" class="px-3 py-1 text-xs rounded font-medium text-slate-400 hover:text-white" data-i18n="viewGrid">Cuadrícula</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ports Table Container -->
+        <div id="table-view" class="bg-dark-800/80 border border-slate-800 rounded-xl overflow-hidden shadow-2xl">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs sm:text-sm">
+                    <thead class="bg-dark-900/80 text-slate-400 uppercase tracking-wider text-[11px] font-semibold border-b border-slate-800">
+                        <tr>
+                            <th class="py-3.5 px-4" data-i18n="thPortProto">Puerto / Proto</th>
+                            <th class="py-3.5 px-4">
+                                <div class="flex items-center space-x-1 cursor-help" title="Estado de Salud: Muestra si un endpoint HTTP/HTTPS responde. Haz clic en 'Health Check' arriba para sondear." data-i18n-title="thHealthTooltip">
+                                    <span data-i18n="thHealth">Salud</span>
+                                    <span class="text-[10px] text-slate-500">ⓘ</span>
+                                </div>
+                            </th>
+                            <th class="py-3.5 px-4" data-i18n="thPID">PID</th>
+                            <th class="py-3.5 px-4" data-i18n="thProjectProcess">Proyecto / Proceso</th>
+                            <th class="py-3.5 px-4" data-i18n="thType">Tipo</th>
+                            <th class="py-3.5 px-4" data-i18n="thMemory">Memoria</th>
+                            <th class="py-3.5 px-4" data-i18n="thUptime">Tiempo Activo</th>
+                            <th class="py-3.5 px-4 text-right" data-i18n="thActions">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ports-table-body" class="divide-y divide-slate-800/60 font-mono">
+                        <!-- Dynamic content injected via app.js -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="empty-state" class="hidden p-12 text-center text-slate-500">
+                <p class="text-4xl mb-2">🎉</p>
+                <p class="text-base font-semibold text-slate-400" data-i18n="noPortsFound">No se encontraron puertos activos que coincidan con el filtro.</p>
+            </div>
+        </div>
+
+        <!-- Grid View Container (Alternative) -->
+        <div id="grid-view" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Dynamic Grid Cards -->
+        </div>
+
+    </main>
+
+    <!-- Slide-over Action History Drawer -->
+    <div id="history-drawer" class="fixed inset-y-0 right-0 max-w-md w-full bg-dark-900 border-l border-slate-800 shadow-2xl transform translate-x-full transition-transform duration-300 z-50 flex flex-col">
+        <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-dark-800">
+            <div class="flex items-center space-x-2">
+                <span class="text-lg">📜</span>
+                <h3 class="font-bold text-sm text-white" data-i18n="historyDrawerTitle">Historial de Acciones & Auditoría</h3>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button onclick="clearHistory()" class="text-xs text-slate-400 hover:text-rose-400 transition" data-i18n="historyClearBtn">Limpiar</button>
+                <button onclick="toggleHistoryDrawer()" class="text-slate-400 hover:text-white p-1">✕</button>
+            </div>
+        </div>
+        <div id="history-list" class="flex-1 overflow-y-auto p-4 space-y-3 font-mono text-xs">
+            <p class="text-slate-500 text-center py-8" data-i18n="historyEmpty">No se han ejecutado acciones aún.</p>
+        </div>
+    </div>
+
+    <!-- Interactive Help & Guide Modal (For beginners and advanced users) -->
+    <div id="help-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-dark-800 border border-slate-700 rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-hidden flex flex-col shadow-2xl">
+            <div class="p-5 border-b border-slate-700/80 flex items-center justify-between">
+                <div class="flex items-center space-x-2.5">
+                    <span class="text-2xl">💡</span>
+                    <div>
+                        <h3 class="font-bold text-base text-white" data-i18n="helpModalTitle">Guía de Uso & Conceptos Clave (scaport)</h3>
+                        <p class="text-xs text-slate-400" data-i18n="helpModalSub">Aprende a interpretar estados, resolver bloqueos y usar atajos</p>
+                    </div>
+                </div>
+                <button onclick="toggleHelpModal()" class="text-slate-400 hover:text-white text-lg p-1">✕</button>
+            </div>
+            <div class="p-6 overflow-y-auto space-y-5 text-xs sm:text-sm text-slate-300 leading-relaxed">
+                <!-- Section 1: Watch Mode vs Passive -->
+                <div class="bg-dark-900/80 p-4 rounded-xl border border-slate-700/70">
+                    <h4 class="font-bold text-emerald-400 text-sm mb-1.5 flex items-center space-x-1.5" data-i18n="helpSec1Title">
+                        👁️ ¿Qué es y qué hace el "Modo Monitor / Watch Daemon"?
+                    </h4>
+                    <p class="text-slate-400 mb-2" data-i18n="helpSec1Intro">
+                        scaport cuenta con dos niveles de supervisión:
+                    </p>
+                    <ul class="space-y-2 text-xs">
+                        <li class="flex items-start space-x-2">
+                            <span class="text-emerald-400 font-bold" data-i18n="helpSec1Item1Title">1. Descubrimiento Pasivo (SSE):</span>
+                            <span class="text-slate-300" data-i18n="helpSec1Item1Desc">Lee la tabla de sockets del Sistema Operativo en tiempo real sin enviar tráfico de red. Consume menos de 0.1% de CPU y está activo por defecto.</span>
+                        </li>
+                        <li class="flex items-start space-x-2">
+                            <span class="text-cyan-400 font-bold" data-i18n="helpSec1Item2Title">2. Watch Daemon Activo (Botón 👁️):</span>
+                            <span class="text-slate-300" data-i18n="helpSec1Item2Desc">Además de leer sockets, envía peticiones HTTP periódicas para comprobar si el servidor está respondiendo o congelado en bucle infinito (deadlock).</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Section 2: Health Column -->
+                <div>
+                    <h4 class="font-bold text-emerald-400 text-sm mb-1.5 flex items-center space-x-1.5" data-i18n="helpSec2Title">
+                        🩺 ¿Qué significa la columna "Health"?
+                    </h4>
+                    <p class="text-slate-400 mb-2" data-i18n="helpSec2Intro">
+                        Evalúa la disponibilidad real del servidor web realizando peticiones HTTP asíncronas:
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 font-mono text-xs">
+                        <div class="p-2 bg-dark-900 rounded border border-slate-800" data-i18n="helpSec2Idle">
+                            ⚪ Idle: Socket abierto a nivel de OS, en espera de healthcheck o servicio no-HTTP.
+                        </div>
+                        <div class="p-2 bg-dark-900 rounded border border-slate-800" data-i18n="helpSec2Ok">
+                            🟢 200 OK: Servicio web activo y respondiendo exitosamente.
+                        </div>
+                        <div class="p-2 bg-dark-900 rounded border border-slate-800" data-i18n="helpSec2Warn">
+                            🟡 4xx/5xx: El servidor responde pero devuelve código de error o ruta raíz 404.
+                        </div>
+                        <div class="p-2 bg-dark-900 rounded border border-slate-800" data-i18n="helpSec2Err">
+                            🔴 Unhealthy / Err: Timeout o conexión rechazada. Posible proceso colgado.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Hot-Cycle -->
+                <div class="border-t border-slate-700/60 pt-4">
+                    <h4 class="font-bold text-amber-400 text-sm mb-1.5 flex items-center space-x-1.5" data-i18n="helpSec3Title">
+                        🔄 ¿Qué es "Hot-Cycle" (Reinicio Rápido)?
+                    </h4>
+                    <p class="text-slate-400" data-i18n="helpSec3Desc">
+                        Si tu servidor (Vite, Next.js, FastAPI, Go) se congela o no detecta cambios, el botón Restart (Hot-Cycle) mata el proceso y lo vuelve a lanzar automáticamente en su mismo directorio de trabajo (CWD) con sus argumentos originales.
+                    </p>
+                </div>
+
+                <!-- Section 4: Kill & System Processes -->
+                <div class="border-t border-slate-700/60 pt-4">
+                    <h4 class="font-bold text-rose-400 text-sm mb-1.5 flex items-center space-x-1.5" data-i18n="helpSec4Title">
+                        🛑 ¿Se pueden cerrar los procesos sin consumo con el botón Kill?
+                    </h4>
+                    <p class="text-slate-400 mb-2" data-i18n="helpSec4Intro">
+                        Algunos puertos en el rango alto (49000+) muestran - MB o unknown porque pertenecen a servicios del sistema donde el OS restringe la telemetría a usuarios estándar:
+                    </p>
+                    <ul class="space-y-1.5 text-xs text-slate-300">
+                        <li class="flex items-start space-x-2">
+                            <span class="text-emerald-400 font-bold" data-i18n="helpSec4Item1Title">✅ Procesos de Usuario en Segundo Plano:</span>
+                            <span data-i18n="helpSec4Item1Desc">Si el puerto fue abierto por una app de usuario (Discord, workers, etc.), al pulsar Kill se finaliza y el puerto se libera de inmediato.</span>
+                        </li>
+                        <li class="flex items-start space-x-2">
+                            <span class="text-amber-400 font-bold" data-i18n="helpSec4Item2Title">🛡️ Procesos del Kernel (PID 4, System):</span>
+                            <span data-i18n="helpSec4Item2Desc">scaport muestra la insignia Shield y bloquea el botón para evitar inestabilidad en tu sistema operativo.</span>
+                        </li>
+                        <li class="flex items-start space-x-2">
+                            <span class="text-purple-400 font-bold" data-i18n="helpSec4Item3Title">🔒 Servicios Protegidos por Windows:</span>
+                            <span data-i18n="helpSec4Item3Desc">Si un servicio requiere permisos de administrador y se intenta matar, Windows denegará el acceso y scaport te informará con un aviso seguro.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Section 5: Shield & Recommended actions -->
+                <div class="border-t border-slate-700/60 pt-4">
+                    <h4 class="font-bold text-cyan-400 text-sm mb-1.5 flex items-center space-x-1.5" data-i18n="helpSec5Title">
+                        🛡️ Acciones Recomendadas ante Bloqueos
+                    </h4>
+                    <ul class="list-disc list-inside space-y-1 text-slate-400 text-xs">
+                        <li data-i18n="helpSec5Item1">Error de Puerto Ocupado (EADDRINUSE): Usa el botón Kill para liberar el puerto inmediatamente.</li>
+                        <li data-i18n="helpSec5Item2">Procesos del Sistema (PID 4, System): scaport los protege con su escudo para evitar inestabilidad en tu OS.</li>
+                        <li data-i18n="helpSec5Item3">Filtro ⚡ Dev Only: Oculta sockets del sistema y muestra únicamente proyectos de desarrollo reconocidos.</li>
+                    </ul>
+                </div>
+
+                <!-- Section 6: CLI Commands -->
+                <div class="border-t border-slate-700/60 pt-4">
+                    <h4 class="font-bold text-purple-400 text-sm mb-1.5 flex items-center space-x-1.5" data-i18n="helpSec6Title">
+                        ⌨️ Comandos CLI Útiles
+                    </h4>
+                    <div class="bg-dark-900 p-3 rounded-lg font-mono text-xs space-y-1 text-emerald-300">
+                        <p>scaport check 3000 8080 <span class="text-slate-500"># Anti-colisiones para package.json/CI</span></p>
+                        <p>scaport watch 3000 5173  <span class="text-slate-500"># Vigilante de salud HTTP en consola</span></p>
+                        <p>scaport kill 3000        <span class="text-slate-500"># Mata proceso en el puerto :3000</span></p>
+                        <p>scaport --md &gt; report.md <span class="text-slate-500"># Exporta auditoría en Markdown</span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 bg-dark-900 border-t border-slate-700/80 flex justify-end">
+                <button onclick="toggleHelpModal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg text-xs transition" data-i18n="understoodBtn">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Telemetry & Performance Analytics Modal -->
+    <div id="telemetry-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-dark-800 border border-slate-700 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+            <!-- Modal Header -->
+            <div class="p-4 sm:p-5 bg-dark-900 border-b border-slate-700/80 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <span class="text-2xl">📊</span>
+                    <div>
+                        <h3 class="font-bold text-white text-base" data-i18n="telemetryModalTitle">Telemetría de Rendimiento y Tráfico en Vivo</h3>
+                        <p class="text-xs text-slate-400" data-i18n="telemetryModalSub">Historial en tiempo real de sockets, memoria física y latencias HTTP</p>
+                    </div>
+                </div>
+                <button onclick="toggleTelemetryModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">✕</button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-6 overflow-y-auto space-y-6">
+                <!-- Row 1: Charts -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Memory Trend Chart -->
+                    <div class="bg-dark-900/90 border border-slate-800 rounded-xl p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold text-cyan-400 uppercase tracking-wider flex items-center space-x-1.5">
+                                <span>🧠</span> <span data-i18n="telemetryMemChartTitle">Evolución de RAM (RSS)</span>
+                            </span>
+                            <span id="telemetry-mem-current" class="text-xs font-mono font-bold text-cyan-300">0.0 MB</span>
+                        </div>
+                        <div class="h-40 w-full flex items-center justify-center">
+                            <svg id="telemetry-chart-mem" class="w-full h-full" viewBox="0 0 280 120" preserveAspectRatio="none">
+                                <path d="M50,100 L270,100"></path>
+                            </svg>
+                        </div>
+                        <div class="flex items-center justify-between text-[10px] text-slate-500 mt-1">
+                            <span data-i18n="yAxisMB">Eje Y: Consumo en MB</span>
+                            <span data-i18n="xAxisTime">Eje X: Tiempo transcurrido</span>
+                        </div>
+                    </div>
+
+                    <!-- Port Connections Chart -->
+                    <div class="bg-dark-900/90 border border-slate-800 rounded-xl p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center space-x-1.5">
+                                <span>🔌</span> <span data-i18n="telemetryPortsChartTitle">Sockets Activos & Dev Ports</span>
+                            </span>
+                            <span id="telemetry-ports-current" class="text-xs font-mono font-bold text-emerald-300">0 sockets</span>
+                        </div>
+                        <div class="h-40 w-full flex items-center justify-center">
+                            <svg id="telemetry-chart-ports" class="w-full h-full" viewBox="0 0 280 120" preserveAspectRatio="none">
+                                <path d="M50,100 L270,100"></path>
+                            </svg>
+                        </div>
+                        <div class="flex items-center justify-between text-[10px] text-slate-500 mt-1">
+                            <span data-i18n="yAxisSockets">Eje Y: Cantidad de sockets</span>
+                            <span data-i18n="xAxisTime">Eje X: Tiempo transcurrido</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 2: Top RAM Consumers Leaderboard & HTTP Latencies Matrix -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Top Memory Consumers -->
+                    <div class="bg-dark-900/90 border border-slate-800 rounded-xl p-4">
+                        <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider mb-3 flex items-center space-x-1.5">
+                            <span>🔥</span> <span data-i18n="topProcsHeader">Top Consumo de Memoria por Proceso</span>
+                        </h4>
+                        <div id="telemetry-top-procs-list" class="space-y-2 text-xs">
+                            <p class="text-slate-500 text-center py-4" data-i18n="detectingStack">Calculando consumo...</p>
+                        </div>
+                    </div>
+
+                    <!-- Active HTTP Endpoints Latency Matrix -->
+                    <div class="bg-dark-900/90 border border-slate-800 rounded-xl p-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center space-x-1.5">
+                                <span>⚡</span> <span data-i18n="httpMatrixHeader">Latencia de Endpoints Web (HTTP)</span>
+                            </h4>
+                            <button onclick="triggerHealthCheck()" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-emerald-300 px-2 py-0.5 rounded border border-slate-700 transition" data-i18n="testBtn">Probar</button>
+                        </div>
+                        <div id="telemetry-http-list" class="space-y-2 text-xs max-h-48 overflow-y-auto no-scrollbar">
+                            <p class="text-slate-500 text-center py-4" data-i18n="noHttpEndpoints">No hay servidores HTTP probados aún.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 3: Protocol Breakdown -->
+                <div class="bg-dark-900/90 border border-slate-800 rounded-xl p-4">
+                    <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center space-x-1.5">
+                        <span>🌐</span> <span data-i18n="protocolMatrixHeader">Matriz de Protocolos de Red (TCP / UDP / IPv6)</span>
+                    </h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                        <div class="bg-dark-800 p-2.5 rounded-lg border border-slate-800">
+                            <p class="text-[10px] text-slate-500 uppercase" data-i18n="tcpSockets">Sockets TCP</p>
+                            <p id="telemetry-proto-tcp" class="text-lg font-bold text-emerald-400 mt-0.5">0</p>
+                        </div>
+                        <div class="bg-dark-800 p-2.5 rounded-lg border border-slate-800">
+                            <p class="text-[10px] text-slate-500 uppercase" data-i18n="udpSockets">Sockets UDP</p>
+                            <p id="telemetry-proto-udp" class="text-lg font-bold text-cyan-400 mt-0.5">0</p>
+                        </div>
+                        <div class="bg-dark-800 p-2.5 rounded-lg border border-slate-800">
+                            <p class="text-[10px] text-slate-500 uppercase" data-i18n="ipv6Sockets">IPv6 / Dual-Stack</p>
+                            <p id="telemetry-proto-ipv6" class="text-lg font-bold text-purple-400 mt-0.5">0</p>
+                        </div>
+                        <div class="bg-dark-800 p-2.5 rounded-lg border border-slate-800">
+                            <p class="text-[10px] text-slate-500 uppercase" data-i18n="shieldedSockets">System Shield</p>
+                            <p id="telemetry-proto-shielded" class="text-lg font-bold text-amber-400 mt-0.5">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer with Direct Export Actions -->
+            <div class="p-4 bg-dark-900 border-t border-slate-700/80 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs text-slate-400" data-i18n="exportReportLabel">Exportar informe:</span>
+                    <button onclick="exportTelemetryReport('md')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 rounded-lg text-xs font-semibold border border-slate-700 hover:border-cyan-500/50 transition flex items-center space-x-1">
+                        <span>📝</span> <span>Markdown (.md)</span>
+                    </button>
+                    <button onclick="exportTelemetryReport('json')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 rounded-lg text-xs font-semibold border border-slate-700 hover:border-cyan-500/50 transition flex items-center space-x-1">
+                        <span>⚡</span> <span>JSON (.json)</span>
+                    </button>
+                </div>
+                <button onclick="toggleTelemetryModal()" class="w-full sm:w-auto px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg text-xs transition" data-i18n="closeTelemetryBtn">Cerrar Monitor</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800/80 bg-dark-900 py-4 mt-auto text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+            <p>⚡ <strong>scaport</strong> by <a href="https://github.com/eyejdev" target="_blank" class="text-emerald-400 hover:underline">eyejdev</a> — Part of the <strong>GOENMA</strong> ecosystem.</p>
+            <div class="flex items-center space-x-4">
+                <a href="https://buymeacoffee.com/eyejdev" target="_blank" class="hover:text-amber-400 transition flex items-center space-x-1">
+                    <span>☕ Buy me a coffee</span>
+                </a>
+                <a href="https://github.com/eyejdev/scaport" target="_blank" class="hover:text-white transition">⭐ Star on GitHub</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 z-50 px-4 py-3 rounded-lg shadow-xl text-xs font-semibold flex items-center space-x-2 border"></div>
+
+    <script src="/static/i18n.js"></script>
+    <script src="/static/tips.js"></script>
+    <script src="/static/app.js"></script>
+</body>
+</html>
