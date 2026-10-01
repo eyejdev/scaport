@@ -2,7 +2,7 @@
 
 # ⚡ GOENMA scaport (`scaport`)
 
-**El orquestador definitivo e inteligente de puertos y procesos locales para desarrolladores.**
+**El gestor definitivo e inteligente de puertos y procesos locales para desarrolladores.**
 
 [![Go Version](https://img.shields.io/badge/Go-1.22%2B-00ADD8?style=flat&logo=go)](https://go.dev/)
 [![Version](https://img.shields.io/badge/version-1.0.0-emerald.svg)](https://github.com/eyejdev/scaport/releases)
